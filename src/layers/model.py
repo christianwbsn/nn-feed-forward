@@ -1,49 +1,72 @@
+import numpy as np
+import dill
+from layer import Layer
 from feedforward import FeedForward
 from activation import Sigmoid
 from loss import MeanSquaredError
 
 class Model():
-    def __init__(self):
-        self.lr = 0.1
+    def __init__(self, num_nodes, cost_function):
+        self.num_layers = len(num_nodes)
+        self.num_nodes = num_nodes
+        self.layers = []
+        self.cost_function = cost_function
 
-        self.ff1 = FeedForward(5, 4)
-        self.ff2 = FeedForward(4, 3)
-        self.sigmoid = Sigmoid()
+        for i in range(self.num_layers):
+            if i != self.num_layers-1:
+                layer_i = Layer(num_nodes[i], num_nodes[i+1])
+            else:
+                layer_i = Layer(num_nodes[i], 0)
+            self.layers.append(layer_i)
 
-        self.loss_func = MeanSquaredError()
+    def fit(self, batch_size, inputs, labels, num_epochs, learning_rate):
+        self.batch_size = batch_size
+        self.learning_rate = learning_rate
+        for j in range(num_epochs):
+            for i in range(0, len(inputs), batch_size):
+                self.error = 0
+                self.forward_pass(inputs[i:i+batch_size])
+                self.calculate_error(labels[i:i+batch_size])
+                self.back_prop(labels[i:i+batch_size])
+                i += batch_size
+            self.error /= batch_size
+            print("EPOCH: ", j+1, "/", num_epochs, " - Error: ", self.error)
+        dill.dump_session("model.pkl")
 
-    def __call__(self, x):
-        self.x = x
-        self.y1 = self.ff1(self.x)
-        self.y2 = self.sigmoid(self.y1)
-        self.y3 = self.ff2(self.y2)
-        self.y4 = self.sigmoid(self.y3)
+    def forward_pass(self, inputs):
+        self.layers[0].activations = inputs
+        for i in range(self.num_layers-1):
+            temp = np.matmul(self.layers[i].activations, self.layers[i].weights_for_layer)
+            self.layers[i+1].activations = self.sigmoid(temp)
 
-        print(self.loss_func([1, 1, 1], self.y4))
+    def sigmoid(self, layer):
+        return np.divide(1, np.add(1, np.exp(np.negative(layer))))
 
-        return self.y4
+    def calculate_error(self, labels):
+        if self.cost_function == "mean_squared":
+            self.error += np.mean(np.divide(np.square(np.subtract(labels, self.layers[self.num_layers-1].activations)), 2))
+        elif self.cost_function == "cross_entropy":
+            self.error += np.negative(np.sum(np.multiply(labels, np.log(self.layers[self.num_layers-1].activations))))
 
-    def back_prop(self):
-        loss_grad = self.loss_func.calc_grad([1, 1, 1], self.y4)
-        y4_grad = self.sigmoid.calc_grad(self.y3, loss_grad)
+    def back_prop(self, labels):
+        targets = labels
+        i = self.num_layers-1
+        y = self.layers[i].activations
+        deltaw = np.matmul(np.asarray(self.layers[i-1].activations).T, np.multiply(y, np.multiply(1-y, targets-y)))
+        new_weights = self.layers[i-1].weights_for_layer - self.learning_rate * deltaw
+        for i in range(i-1, 0, -1):
+            y = self.layers[i].activations
+            deltaw = np.matmul(np.asarray(self.layers[i-1].activations).T, np.multiply(y, np.multiply(1-y, np.sum(np.multiply(new_weights, self.layers[i].weights_for_layer),axis=1).T)))
+            self.layers[i].weights_for_layer = new_weights
+            new_weights = self.layers[i-1].weights_for_layer - self.learning_rate * deltaw
+        self.layers[0].weights_for_layer = new_weights
 
-        # correct ff2
-        for o in range(self.ff2.weight.shape[0]):
-            for i in range(self.ff2.weight.shape[1]):
-                self.ff2.weight[o, i] -= self.lr * y4_grad[o] * self.y2[i]
-
-        y3_grad = self.ff2.calc_grad(y4_grad)
-        y2_grad = self.sigmoid.calc_grad(self.y2, y3_grad)
-
-        # correct ff1
-        for o in range(self.ff1.weight.shape[0]):
-            for i in range(self.ff1.weight.shape[1]):
-                self.ff1.weight[o, i] -= self.lr * y2_grad[o] * self.x[i]
-
-if __name__ == "__main__":
-    model = Model()
-    for _ in range(100):
-        print(model([1, 1, 1, 1, 1]))
-        model.back_prop()
-        print()
+    def predict(self, input):
+        dill.load_session("model.pkl")
+        self.batch_size = len(input)
+        self.forward_pass(input)
+        a = self.layers[self.num_layers-1].activations
+        a[np.where(a==np.max(a))] = 1
+        a[np.where(a!=np.max(a))] = 0
+        return a
     
