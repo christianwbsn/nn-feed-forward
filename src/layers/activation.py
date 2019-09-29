@@ -17,20 +17,17 @@ class Sigmoid():
     def __init__(self):
         pass
 
-    def __elementwise_sigmoid__(self, x):
-        return 1 / (1 + np.exp(-x))
-
-    def __call__(self, x):
+    def __call__(self, X):
         """
         Calculate the elementwise sigmoid of a List
 
         Takes a `List` of any size
         Returns a `List` of the same size
         """
-        # TODO: handle batch
-        return [self.__elementwise_sigmoid__(x_i) for x_i in x]
+        X = np.array(X)
+        return 1 / (1 + np.exp(-X))
 
-    def calc_grad(self, x, succ_grad):
+    def calc_grad(self, X, succ_grad):
         """
         Calculate the derivative of sigmoid with respect to each element in x 
         multiplied by all of its successive gradient
@@ -40,5 +37,10 @@ class Sigmoid():
             succ_grad, a `List` with the same size as `x`. The gradient of its successive layer
         Returns a List with the same size as x. The resulting gradient
         """
-        # TODO: handle batch
-        return [succ_grad[i] * self.__elementwise_sigmoid__(x[i]) * (1 - self.__elementwise_sigmoid__(x[i])) for i in range(len(x))]
+        
+        X = np.array(X)
+        if X.shape[1] != len(succ_grad):
+            raise ValueError("Grad size mismatch")
+
+        cur_grad = np.mean(self(X) * (1 - self(X)), axis = 0)
+        return cur_grad * succ_grad

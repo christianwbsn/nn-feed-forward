@@ -1,3 +1,5 @@
+import numpy as np
+
 class MeanSquaredError():
     def __init__(self):
         pass
@@ -13,11 +15,12 @@ class MeanSquaredError():
         """
 
         # Check dimension equality
-        if len(gold) != len(pred):
+        gold = np.array(gold)
+        pred = np.array(pred)
+        if gold.shape != pred.shape:
             raise ValueError("gold and pred is not the same size")
 
-        # TODO: handle batch
-        return sum([((gold[i] - pred[i])**2)**0.5 for i in range(len(gold))])/len(gold)
+        return np.mean((gold - pred)**2)
 
     def calc_grad(self, gold, pred):
         """
@@ -29,9 +32,9 @@ class MeanSquaredError():
         Return a `List` with the same size as `gold` and `pred` (the gradient)
         """
 
-        # Check dimension equality
-        if len(gold) != len(pred):
+        gold = np.array(gold)
+        pred = np.array(pred)
+        if gold.shape != pred.shape:
             raise ValueError("gold and pred is not the same size")
         
-        # TODO: handle batch
-        return [-(gold[i] - pred[i])/(((gold[i]-pred[i])**2)**0.5) for i in range(len(gold))]
+        return np.mean(-2 * (gold - pred), axis = 0)
