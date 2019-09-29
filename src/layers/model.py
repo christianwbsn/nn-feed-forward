@@ -33,9 +33,10 @@ class Model():
                 layer_i = Layer(num_nodes[i], 0)
             self.layers.append(layer_i)
 
-    def fit(self, batch_size, inputs, labels, num_epochs, learning_rate):
+    def fit(self, batch_size, inputs, labels, num_epochs, learning_rate, momentum):
         self.batch_size = batch_size
         self.learning_rate = learning_rate
+        self.momentum = momentum
         for j in range(num_epochs):
             for batch in mini_batch(inputs, labels, batch_size, shuffle=True):
                 self.error = 0
@@ -47,9 +48,14 @@ class Model():
         dill.dump_session("model.pkl")
 
     def forward_pass(self, inputs):
+        # assign input layer's activation from input
         self.layers[0].activations = inputs
+
         for i in range(self.num_layers-1):
+            # multiply with weight 
             temp = np.matmul(self.layers[i].activations, self.layers[i].weights_for_layer)
+
+            # apply activation function
             self.layers[i+1].activations = self.sigmoid(temp)
 
     def sigmoid(self, layer):
@@ -62,16 +68,36 @@ class Model():
             self.error += np.negative(np.sum(np.multiply(labels, np.log(self.layers[self.num_layers-1].activations))))
 
     def back_prop(self, labels):
+
+        # initialize params for output layer
         targets = labels
         i = self.num_layers-1
         y = self.layers[i].activations
+
+        # calculate gradient
         deltaw = np.matmul(np.asarray(self.layers[i-1].activations).T, np.multiply(y, np.multiply(1-y, targets-y)))
-        new_weights = self.layers[i-1].weights_for_layer - self.learning_rate * deltaw
+
+        # update velocity
+        self.layers[i].velocity = (self.momentum * self.layers[i].velocity) + ((1 - self.momentum) * deltaw)
+
+        # assign new weights for previous layer
+        new_weights = self.layers[i-1].weights_for_layer - self.learning_rate * self.layers[i].velocity
+
+        # back prop from output layer to first
         for i in range(i-1, 0, -1):
             y = self.layers[i].activations
+            # calculate gradient
             deltaw = np.matmul(np.asarray(self.layers[i-1].activations).T, np.multiply(y, np.multiply(1-y, np.sum(np.multiply(new_weights, self.layers[i].weights_for_layer),axis=1).T)))
+
+            # update weight
             self.layers[i].weights_for_layer = new_weights
-            new_weights = self.layers[i-1].weights_for_layer - self.learning_rate * deltaw
+
+            # update velocity
+            self.layers[i].velocity = (self.momentum * self.layers[i].velocity) + ((1 - self.momentum) * deltaw)
+
+            new_weights = self.layers[i-1].weights_for_layer - self.learning_rate * self.layers[i].velocity
+
+        # assign weights to input layer
         self.layers[0].weights_for_layer = new_weights
 
     def predict(self, input):

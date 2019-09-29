@@ -18,7 +18,7 @@ y_test = df.play[11:14].values
 
 # fit and predict
 net = Model([6, 3, 1], cost_function="mean_squared")
-net.fit(1, inputs=X_train, labels=y_train, num_epochs=40, learning_rate=0.0001)
+net.fit(1, inputs=X_train, labels=y_train, num_epochs=10, learning_rate=0.0001, momentum=0.9)
 
 y_pred = net.predict(X_test)
 
