@@ -17,7 +17,7 @@ X_test = df.drop('play', 1)[11:14].values
 y_test = df.play[11:14].values
 
 # fit and predict
-net = Model([6, 4, 1], cost_function="mean_squared")
+net = Model([6, 3, 1], cost_function="mean_squared")
 net.fit(1, inputs=X_train, labels=y_train, num_epochs=10, learning_rate=0.001)
 
 y_pred = net.predict(X_test)

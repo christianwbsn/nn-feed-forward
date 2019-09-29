@@ -28,7 +28,6 @@ class Model():
                 self.forward_pass(inputs[i:i+batch_size])
                 self.calculate_error(labels[i:i+batch_size])
                 self.back_prop(labels[i:i+batch_size])
-                i += batch_size
             self.error /= batch_size
             print("EPOCH: ", j+1, "/", num_epochs, " - Error: ", self.error)
         dill.dump_session("model.pkl")
