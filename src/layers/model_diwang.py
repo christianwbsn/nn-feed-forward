@@ -1,10 +1,11 @@
 from feedforward import FeedForward
 from activation import Sigmoid
 from loss import MeanSquaredError
+import numpy as np
 
 class Model():
     def __init__(self, nb_nodes):
-        self.lr = 0.005
+        self.lr = 0.01
 
         # Create the fully connected layers
         self.ff = []
@@ -49,11 +50,11 @@ class Model():
             for o in range(self.ff[l].weight.shape[0]):
                 for i in range(self.ff[l].weight.shape[1]):
                     # Add momentum here
-                    self.ff[l].weight[o, i] -= self.lr * activation_grad[o] * self.transitional[2 * (l + 1) - 2][i]
+                    self.ff[l].weight[o, i] -= self.lr * activation_grad[o] * np.mean(self.transitional[2 * (l + 1) - 2], axis = 0)[i]
 
 if __name__ == "__main__":
     model = Model([6, 6, 2])
-    for _ in range(1000):
-        print(model([1, 1, 1, 1, 1, 1]))
-        model.back_prop([0.5, 0.5])
+    for _ in range(100000):
+        print(model([[1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1]]))
+        model.back_prop([[0, 0], [0, 0]])
     
