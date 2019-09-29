@@ -5,6 +5,20 @@ from feedforward import FeedForward
 from activation import Sigmoid
 from loss import MeanSquaredError
 
+
+def mini_batch(inputs, targets, batch_size, shuffle=False):
+    assert inputs.shape[0] == targets.shape[0]
+    if shuffle:
+        indices = np.arange(inputs.shape[0])
+        np.random.shuffle(indices)
+    for start_idx in range(0, inputs.shape[0] - batch_size + 1, batch_size):
+        end_idx = min(start_idx + batch_size, inputs.shape[0])
+        if shuffle:
+            excerpt = indices[start_idx : end_idx]
+        else:
+            excerpt = slice(start_idx, end_idx)
+        yield inputs[excerpt], targets[excerpt]
+
 class Model():
     def __init__(self, num_nodes, cost_function):
         self.num_layers = len(num_nodes)
@@ -23,11 +37,11 @@ class Model():
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         for j in range(num_epochs):
-            for i in range(0, len(inputs), batch_size):
+            for batch in mini_batch(inputs, labels, batch_size, shuffle=True):
                 self.error = 0
-                self.forward_pass(inputs[i:i+batch_size])
-                self.calculate_error(labels[i:i+batch_size])
-                self.back_prop(labels[i:i+batch_size])
+                self.forward_pass(batch[0])
+                self.calculate_error(batch[1])
+                self.back_prop(batch[1])
             self.error /= batch_size
             print("EPOCH: ", j+1, "/", num_epochs, " - Error: ", self.error)
         dill.dump_session("model.pkl")
@@ -68,4 +82,3 @@ class Model():
         a[np.where(a==np.max(a))] = 1
         a[np.where(a!=np.max(a))] = 0
         return a
-    
