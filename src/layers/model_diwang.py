@@ -19,9 +19,9 @@ def mini_batch(inputs, targets, batch_size, shuffle=False):
         yield inputs[excerpt], targets[excerpt]
 
 class Model():
-    def __init__(self, nb_nodes, momentum):
-        self.lr = 0.0001
-        self.momentum = 0.9
+    def __init__(self, nb_nodes, momentum=0.9, learning_rate=0.01):
+        self.lr = learning_rate
+        self.momentum = momentum
         self.velocity = 0
 
         # Create the fully connected layers
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     X_train = df.drop('play', 1)[0:11].values
     X_test = df.drop('play', 1)[11:14].values
     y_test = df.play[11:14].values
-    model = Model([6, 6, 1], momentum=0.9)
+    model = Model([6, 6, 1])
     iter = 0
     for _ in range(num_epoch):
         for batch in mini_batch(X_train, y_train, 5, shuffle=True):
