@@ -1,7 +1,7 @@
 """
 Module implementing loss function
 """
-import numpy as np
+from numpy import array, mean
 
 class MeanSquaredError():
     def __init__(self):
@@ -18,12 +18,12 @@ class MeanSquaredError():
         """
 
         # Check dimension equality
-        gold = np.array(gold)
-        pred = np.array(pred)
+        gold = array(gold)
+        pred = array(pred)
         if gold.shape != pred.shape:
             raise ValueError("gold and pred is not the same size")
 
-        return np.mean((gold - pred)**2)
+        return mean((gold - pred)**2)
 
     def calc_grad(self, gold, pred):
         """
@@ -35,9 +35,9 @@ class MeanSquaredError():
         Return a `List` with the same size as `gold` and `pred` (the gradient)
         """
 
-        gold = np.array(gold)
-        pred = np.array(pred)
+        gold = array(gold)
+        pred = array(pred)
         if gold.shape != pred.shape:
             raise ValueError("gold and pred is not the same size")
 
-        return np.mean(-2 * (gold - pred), axis = 0)
+        return mean(-2 * (gold - pred), axis = 0)

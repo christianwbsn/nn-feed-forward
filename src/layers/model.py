@@ -9,6 +9,16 @@ import numpy as np
 
 class Model():
     def __init__(self, nb_nodes, hidden_layer, momentum=0.9, learning_rate=0.01):
+        # batch size implemented in data loader
+        if (learning_rate < 0 or learning_rate > 1):
+            raise ValueError("learning rate must be float between 0 to 1")
+
+        if (momentum < 0 or momentum > 1):
+            raise ValueError("momentum must be float between 0 to 1")
+
+        if(nb_nodes[-1] != 1):
+            raise ValueError("nb_node in output layer must be 1")
+
         self.lr = learning_rate
         self.momentum = momentum
         self.velocity = 0
