@@ -19,11 +19,11 @@ class FeedForward():
         return (self.weight @ X.T).T # Matrix multiplication
 
 
-    def calc_grad(self, succ_grad): 
+    def calc_grad(self, succ_grad):
         """
-        Calculate the derivative of each the output with respect to its input (not to its weight) 
+        Calculate the derivative of each the output with respect to its input (not to its weight)
         multiplied by all of its successive gradient
-        
+
         Takes a List of size output_dim (the gradient of its successive layer)
         Returns a List of size input_dim (the resulting gradient)
         """

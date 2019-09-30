@@ -41,6 +41,7 @@ class Model():
             for batch in mini_batch(inputs, labels, batch_size, shuffle=True):
                 self.error = 0
                 self.forward_pass(batch[0])
+                print(self.layers[-1].activations)
                 self.calculate_error(batch[1])
                 self.back_prop(batch[1])
             self.error /= batch_size
@@ -105,6 +106,7 @@ class Model():
         self.batch_size = len(input)
         self.forward_pass(input)
         a = self.layers[self.num_layers-1].activations
+        print(a)
         a[np.where(a==np.max(a))] = 1
         a[np.where(a!=np.max(a))] = 0
         return a
