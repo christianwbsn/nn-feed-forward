@@ -36,5 +36,5 @@ class MeanSquaredError():
         pred = np.array(pred)
         if gold.shape != pred.shape:
             raise ValueError("gold and pred is not the same size")
-        
+
         return np.mean(-2 * (gold - pred), axis = 0)
