@@ -22,7 +22,6 @@ class MeanSquaredError():
         pred = array(pred)
         if gold.shape != pred.shape:
             raise ValueError("gold and pred is not the same size")
-
         return mean((gold - pred)**2)
 
     def calc_grad(self, gold, pred):
@@ -39,5 +38,4 @@ class MeanSquaredError():
         pred = array(pred)
         if gold.shape != pred.shape:
             raise ValueError("gold and pred is not the same size")
-
         return mean(-2 * (gold - pred), axis = 0)

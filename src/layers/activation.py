@@ -29,7 +29,7 @@ class Sigmoid():
 
     def calc_grad(self, X, succ_grad):
         """
-        Calculate the derivative of sigmoid with respect to each element in x 
+        Calculate the derivative of sigmoid with respect to each element in x
         multiplied by all of its successive gradient
 
         Takes:
@@ -37,7 +37,7 @@ class Sigmoid():
             succ_grad, a `List` with the same size as `x`. The gradient of its successive layer
         Returns a List with the same size as x. The resulting gradient
         """
-        
+
         X = np.array(X)
         if X.shape[1] != len(succ_grad):
             raise ValueError("Grad size mismatch")
