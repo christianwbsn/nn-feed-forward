@@ -1,3 +1,6 @@
+"""
+Module implementing loss function
+"""
 import numpy as np
 
 class MeanSquaredError():

@@ -1,8 +1,13 @@
+"""
+Module implementing feedforward node
+"""
+
 from numpy.random import rand
 from numpy import array
 
 class FeedForward():
     def __init__(self, input_dim, output_dim):
+        "Initialize with random weight"
         self.weight = rand(output_dim, input_dim)
 
     def __call__(self, X):

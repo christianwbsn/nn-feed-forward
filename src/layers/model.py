@@ -1,3 +1,7 @@
+"""
+Module implementing model of neural net
+"""
+
 from src.layers.feedforward import FeedForward
 from src.layers.activation import Sigmoid
 from src.layers.loss import MeanSquaredError
@@ -22,8 +26,6 @@ class Model():
 
 
     def __call__(self, x):
-        # if self.batch_size != np.array(x).shape[0]:
-        #     raise ValueError("Batch size mismatch")
         # A variable to record intermediate output
         self.transitional = []
 
@@ -56,19 +58,3 @@ class Model():
                     # Add momentum here
                     self.velocity = self.momentum * self.velocity + (1 - self.momentum) * activation_grad[o] * np.mean(self.transitional[2 * (l + 1) - 2], axis = 0)[i]
                     self.ff[l].weight[o, i] -= self.lr * self.velocity
-
-if __name__ == "__main__":
-    num_epoch = 100
-    df = pd.read_csv('../../data/processed/dataset.csv')
-    df = df.drop(df.columns[[0]], axis=1)
-    X = df.drop(['play'], axis=1).values
-    y = df['play'].values
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, test_size=0.5)
-    model = Model([6, 6, 3, 2, 1], momentum=0.9, learning_rate=0.01)
-    for _ in range(num_epoch):
-        for batch in mini_batch(X_train, y_train, 4, shuffle=True):
-            model(batch[0])
-            model.back_prop(batch[1].reshape(-1,1))
-    pred = model(X_test).flatten()
-    pred = [1 if x>=0.5 else 0 for x in pred]
-    print(accuracy_score(pred, y_test))
