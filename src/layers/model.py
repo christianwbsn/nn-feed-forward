@@ -8,11 +8,15 @@ from src.layers.loss import MeanSquaredError
 import numpy as np
 
 class Model():
-    def __init__(self, nb_nodes, momentum=0.9, learning_rate=0.01):
+    def __init__(self, nb_nodes, hidden_layer, momentum=0.9, learning_rate=0.01):
         self.lr = learning_rate
         self.momentum = momentum
         self.velocity = 0
+        if (len(nb_nodes)-2) != hidden_layer:
+            raise ValueError("hidden layer size mismatch with nb_nodes")
 
+        if (len(nb_nodes)-2 > 10 or hidden_layer > 10):
+            raise ValueError("maximum hidden layer is 10")
         # Create the fully connected layers
         self.ff = []
         for i in range(len(nb_nodes) - 1):

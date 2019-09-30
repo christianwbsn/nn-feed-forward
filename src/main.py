@@ -10,7 +10,7 @@ df = df.drop(df.columns[[0]], axis=1)
 X = df.drop(['play'], axis=1).values
 y = df['play'].values
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, test_size=0.5)
-model = Model([6, 6, 3, 2, 1], momentum=0.9, learning_rate=0.01)
+model = Model([6, 6, 3, 2, 1], hidden_layer=2, momentum=0.9, learning_rate=0.01)
 for _ in range(num_epoch):
     for batch in mini_batch(X_train, y_train, 4, shuffle=True):
             model(batch[0])
