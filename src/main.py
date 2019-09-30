@@ -11,14 +11,15 @@ def train(inputs,labels):
     parser = argparse.ArgumentParser(description='Mini-batch Gradient Descent')
     parser.add_argument('--epoch', default=100, type=int,
                     help='number of iterations')
-    parser.add_argument('--b_size', default=5, type=int,
+    parser.add_argument('--b_size', default=10, type=int,
                     help='batch_size')
-    parser.add_argument('--lr', default=0.01, type=float,
+    parser.add_argument('--lr', default=0.05, type=float,
                     help='learning rate')
     parser.add_argument('--m', default=0.9, type=float,
                     help='momentum')
     args = parser.parse_args()
-    model = Model([6, 6, 3, 1], hidden_layer=2, momentum=args.m, learning_rate=args.lr)
+    input_layer = inputs.shape[1]
+    model = Model([input_layer, 3, 1], hidden_layer=1, momentum=args.m, learning_rate=args.lr)
     criterion = MeanSquaredError()
     for i in range(args.epoch):
         running_loss = 0.0
@@ -37,11 +38,12 @@ def predict(model, inputs, threshold=0.5):
     return pred
 
 if __name__ == '__main__':
-    df = pd.read_csv('data/processed/dataset.csv')
-    df = df.drop(df.columns[[0]], axis=1)
-    X = df.drop(['play'], axis=1).values
-    y = df['play'].values
+    df = pd.read_csv('data/processed/train_titanic.csv')
+    X = df.drop(['Survived'], axis=1).values
+    y = df['Survived'].values
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, test_size=0.2)
+    print(X_train.shape)
     model = train(X_train, y_train)
     prediction = predict(model, X_test)
+    print(prediction)
     print(classification_report(prediction, y_test))
